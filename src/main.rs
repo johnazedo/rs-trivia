@@ -1,28 +1,40 @@
-use std::io;
+use std::{io, num::ParseIntError};
 
 static URL: &str = "https://opentdb.com/api.php?amount=10";
 const NUMBER_OF_QUESTIONS: usize = 1;
 
 fn main() {
-    let questions = get_questions();
-    for q in questions {
-        println!("{}", format_question(&q));
-        let selected = read_user_answer();
-        if !check_if_answer_is_valid(&selected) {
-            println!("{}", "Invalid answer")
-        }
-    }
+    // let questions = get_questions();
+    // for q in questions {
+    //     loop {
+    //         println!("{}", format_question(&q));
+    //         let choice = read_user_answer();
+    //         match choice {
+    //             Err(_error) => {
+    //                 println!("This anwser is not valid. Try again.\n");
+    //                 continue;
+    //             },
+    //             Ok(value) => {
+    //                 if !check_if_answer_is_valid(&value) {
+    //                     println!("Invalid answer\n");
+    //                     continue;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    
+
+
 }
 
-// Change this to get a error or i32
-fn read_user_answer() -> i32 {
+fn read_user_answer() -> Result<i32, ParseIntError> {
     const READ_PROBLEM: &str = "problem to read value";
 
     let mut user_input = String::new();
     io::stdin().read_line(&mut user_input).expect(READ_PROBLEM);
-    return user_input.trim().parse::<i32>().expect(READ_PROBLEM)
+    return user_input.trim().parse::<i32>()
 }
-
 
 fn check_if_answer_is_valid(aws: &i32) -> bool {
     return *aws <= 4 && *aws > 0;
@@ -62,4 +74,43 @@ fn get_questions() -> [Question; NUMBER_OF_QUESTIONS] {
             ]
         }
     ]
+}
+
+struct Presentation {}
+
+trait Subscriber { 
+    fn update(&self, state: State);
+}
+
+impl Subscriber for Presentation {
+    fn update(&self, state: State) {
+        println!("This presentation was updated")
+    }
+}
+
+struct Publisher { 
+    state: State,
+    subscribers: Vec<Box<dyn Subscriber>>
+}
+
+struct State {
+    question: String,
+    answer: [String;4]
+}
+
+impl Publisher {
+    fn subscribe(&mut self, s: Box<dyn Subscriber>) {
+        self.subscribers.push(s);
+    }
+
+    fn set_state(&mut self, s: State) {
+        self.state = s;
+        self.notify_subscribers()
+    }
+
+    fn notify_subscribers(&self) {
+        for s in self.subscribers.iter() {
+            s.update(self.state)
+        }
+    }
 }
