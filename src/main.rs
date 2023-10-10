@@ -24,6 +24,36 @@ fn main() {
     //     }
     // }
     
+    let mut publi = Publisher{
+        state: State { 
+            question: String::from("Which internet company began life as an online bookstore called &#039;Cadabra&#039;?"),
+            answer: [
+                String::from("eBay"),
+                String::from("Overstock"),
+                String::from("Shopify"),
+                String::from("Amazon")
+            ]
+        },
+        subscribers: vec![]
+    };
+
+    let sub_one = Presentation{};
+    let sub_two = Presentation{};
+
+    publi.subscribe(Box::new(sub_one));
+    publi.subscribe(Box::new(sub_two));
+
+    publi.set_state(
+        State { 
+            question: String::from("Which internet company began life as an online bookstore called ....?"),
+            answer: [
+                String::from("eBay"),
+                String::from("Overstock"),
+                String::from("Shopify"),
+                String::from("Amazon")
+            ]
+        },
+    )
 
 
 }
@@ -79,12 +109,13 @@ fn get_questions() -> [Question; NUMBER_OF_QUESTIONS] {
 struct Presentation {}
 
 trait Subscriber { 
-    fn update(&self, state: State);
+    fn update(&self, state: &State);
 }
 
 impl Subscriber for Presentation {
-    fn update(&self, state: State) {
-        println!("This presentation was updated")
+    fn update(&self, state: &State) {
+        println!("This presentation was updated");
+        println!("{}", state.question)
     }
 }
 
@@ -110,7 +141,7 @@ impl Publisher {
 
     fn notify_subscribers(&self) {
         for s in self.subscribers.iter() {
-            s.update(self.state)
+            s.update(&self.state)
         }
     }
 }
